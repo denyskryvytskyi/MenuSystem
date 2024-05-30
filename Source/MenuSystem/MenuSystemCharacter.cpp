@@ -244,6 +244,7 @@ void AMenuSystemCharacter::OnFindSessionsComplete(bool bWasSuccessful)
 
             const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
             OnlineSessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, Result);
+            break;
         }
     }
 }
@@ -261,7 +262,7 @@ void AMenuSystemCharacter::OnJoinSessionComplete(FName SessionName, EOnJoinSessi
                 -1,
                 15.f,
                 FColor::Yellow,
-                FString::Printf(TEXT("Connect string: %s"), *Address));
+                FString::Printf(TEXT("Session name: %s; Socket: %s"), *SessionName.ToString(), *Address));
         }
 
         if (APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController()) {
