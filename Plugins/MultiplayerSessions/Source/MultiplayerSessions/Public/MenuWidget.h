@@ -21,7 +21,7 @@ class MULTIPLAYERSESSIONS_API UMenuWidget : public UUserWidget {
 
 public:
     UFUNCTION(BlueprintCallable)
-    void MenuSetup(const int32 NumPublicConnections = 4, const EMatchType MatchType = EMatchType::FFA);
+    void MenuSetup(const int32 NumPublicConnections = 4, const EMatchType MatchType = EMatchType::FFA, const FString& LobbyLevelPath = TEXT("/Game/ThirdPerson/Maps/Lobby"));
 
 protected:
     bool Initialize() override;
@@ -54,4 +54,5 @@ private:
 
     int32 NumPublicConnections { 4 };
     EMatchType MatchType { EMatchType::FFA };
+    FString LobbyUrl { TEXT("") };
 };

@@ -6,9 +6,6 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 
-#include "Interfaces/OnlineSessionDelegates.h"
-#include "Interfaces/OnlineSessionInterface.h"
-
 #include "MenuSystemCharacter.generated.h"
 
 class USpringArmComponent;
@@ -47,14 +44,6 @@ class AMenuSystemCharacter : public ACharacter {
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* LookAction;
 
-    // Online Subsystem
-    IOnlineSessionPtr OnlineSessionInterface;
-
-    FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
-    FOnFindSessionsCompleteDelegate FindSessionsCompleteDelegate;
-    FOnJoinSessionCompleteDelegate JoinSessionCompleteDelegate;
-    TSharedPtr<FOnlineSessionSearch> SessionSearch;
-
 public:
     AMenuSystemCharacter();
 
@@ -64,20 +53,6 @@ protected:
 
     /** Called for looking input */
     void Look(const FInputActionValue& Value);
-
-    // Online Subsystem logic
-
-    // Called when pressing the 1 key
-    UFUNCTION(BlueprintCallable)
-    void CreateGameSession();
-
-    // Called when pressing the 2 key
-    UFUNCTION(BlueprintCallable)
-    void JoinGameSession();
-
-    void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-    void OnFindSessionsComplete(bool bWasSuccessful);
-    void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 protected:
     // APawn interface

@@ -10,10 +10,11 @@
 
 constexpr int32 kMaxSearchSessionsResults = 10000;
 
-void UMenuWidget::MenuSetup(const int32 numPublicConnections, const EMatchType matchType)
+void UMenuWidget::MenuSetup(const int32 numPublicConnections, const EMatchType matchType, const FString& lobbyLevelPath)
 {
     NumPublicConnections = numPublicConnections;
     MatchType = matchType;
+    LobbyUrl = FString::Printf(TEXT("%s?listen"), *lobbyLevelPath);
 
     AddToViewport();
     SetVisibility(ESlateVisibility::Visible);
@@ -76,23 +77,35 @@ void UMenuWidget::NativeDestruct()
 
 void UMenuWidget::OnCreateSession(bool bWasSuccessful)
 {
-    if (GEngine) {
-        GEngine->AddOnScreenDebugMessage(-1,
-                                         15.0f,
-                                         FColor::Green,
-                                         FString("UMenuWidget::OnCreateSession"));
-    }
-
     if (bWasSuccessful) {
-        UWorld* World = GetWorld();
-        if (World) {
-            World->ServerTravel(FString("/Game/ThirdPerson/Maps/Lobby?listen"));
+        if (GEngine) {
+            GEngine->AddOnScreenDebugMessage(-1,
+                                             15.0f,
+                                             FColor::Green,
+                                             FString("New session is created"));
+        }
+
+        // Additional logic before starting the session could be added here
+        MultiplayerSessionsSubsystem->StartSession();
+    } else {
+        HostButton->SetIsEnabled(true);
+        if (GEngine) {
+            GEngine->AddOnScreenDebugMessage(-1,
+                                             15.0f,
+                                             FColor::Red,
+                                             FString("Failed to create session"));
         }
     }
 }
 
 void UMenuWidget::OnStartSession(bool bWasSuccessful)
 {
+    if (bWasSuccessful) {
+        UWorld* World = GetWorld();
+        if (World) {
+            World->ServerTravel(LobbyUrl);
+        }
+    }
 }
 
 void UMenuWidget::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
@@ -129,6 +142,10 @@ void UMenuWidget::OnFindSessions(const TArray<FOnlineSessionSearchResult>& Sessi
             break;
         }
     }
+
+    if (!bWasSuccessful || SessionResults.IsEmpty()) {
+        JoinButton->SetIsEnabled(true);
+    }
 }
 
 void UMenuWidget::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
@@ -155,6 +172,10 @@ void UMenuWidget::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
             }
         }
     }
+
+    if (Result != EOnJoinSessionCompleteResult::Success) {
+        JoinButton->SetIsEnabled(true);
+    }
 }
 
 void UMenuWidget::OnDestroySession(bool bWasSuccessful)
@@ -163,6 +184,7 @@ void UMenuWidget::OnDestroySession(bool bWasSuccessful)
 
 void UMenuWidget::OnHostButtonClicked()
 {
+    HostButton->SetIsEnabled(false);
     if (MultiplayerSessionsSubsystem) {
         MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
     }
@@ -170,6 +192,7 @@ void UMenuWidget::OnHostButtonClicked()
 
 void UMenuWidget::OnJoinButtonClicked()
 {
+    JoinButton->SetIsEnabled(false);
     if (MultiplayerSessionsSubsystem) {
         MultiplayerSessionsSubsystem->FindSessions(kMaxSearchSessionsResults);
     }

@@ -26,6 +26,12 @@ UCLASS()
 class MULTIPLAYERSESSIONS_API UMultiplayerSessionsSubsystem : public UGameInstanceSubsystem {
     GENERATED_BODY()
 
+private:
+    struct SessionToCreateInfo {
+        int32 NumPublicConnections;
+        EMatchType MatchType;
+    };
+
 public:
     UMultiplayerSessionsSubsystem();
 
@@ -70,4 +76,7 @@ private:
 
     FOnDestroySessionCompleteDelegate DestroySessionCompleteDelegate;
     FDelegateHandle DestroySessionCompleteDelegateHandle;
+
+    SessionToCreateInfo QueuedSessionToCreateInfo;
+    bool bCreateNewSessionOnDestroy { false };
 };
